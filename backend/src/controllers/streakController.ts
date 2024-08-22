@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import streaksService from '../services/streaksService';
+import streaksService from '../services/streakService';
 
 class StreaksController {
   async createStreak(req: Request, res: Response, next: NextFunction) {

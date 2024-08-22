@@ -1,26 +1,26 @@
 import { PrismaClient } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 const prisma = new PrismaClient();
 
 class StreaksService {
-  async createStreak(userId: string, title: string) {
-    return await prisma.streak.create({
-      data: {
-        title,
-        count: 1,
-        userId,
-      },
-    });
-  }
-
   async updateStreak(userId: string, streakId: string, data: { title?: string; count?: number }) {
-    return await prisma.streak.update({
-      where: {
-        id: streakId,
-        userId,
-      },
-      data,
-    });
+    try {
+      return await prisma.streak.update({
+        where: {
+          id: streakId,
+          userId,
+        },
+        data,
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
+        // Record to update not found
+        throw new Error(`Streak with ID ${streakId} not found for user ${userId}`);
+      } else {
+        throw error;
+      }
+    }
   }
 
   async deleteStreak(userId: string, streakId: string) {

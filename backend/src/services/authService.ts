@@ -7,15 +7,12 @@ const prisma = new PrismaClient();
 class AuthService {
   async signup(email: string, password: string) {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await prisma.user.create({
+    return await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
       },
     });
-
-    const token = this.generateToken(user.id);
-    return { user, token };
   }
 
   async login(email: string, password: string) {
