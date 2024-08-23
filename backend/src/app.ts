@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import authRoutes from './routes/authRoutes';
 import streaksRoutes from './routes/streakRoutes';
+import { errorMiddleware } from './middlewares/error.middleware';
 
 dotenv.config();
 
@@ -28,5 +29,8 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+// Error handling middleware
+app.use(errorMiddleware)
 
 export default app;
