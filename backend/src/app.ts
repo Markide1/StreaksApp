@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import authRoutes from './routes/authRoutes';
 import streaksRoutes from './routes/streakRoutes';
-import { errorMiddleware } from './middlewares/error.middleware';
+import { errorMiddleware } from './middlewares/errorMiddleware';
 
 dotenv.config();
 

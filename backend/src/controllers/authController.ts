@@ -3,9 +3,9 @@ import authService from '../services/authService';
 
 class AuthController {
   async signup(req: Request, res: Response, next: NextFunction) {
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
     try {
-      const user = await authService.signup(email, password);
+      const user = await authService.signup(email, password, name);
       res.status(201).json({ message: 'Signup successful. Please log in.' });
     } catch (error) {
       next(error);

@@ -1,20 +1,22 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+import emailService from '../config/emailService';
 
 const prisma = new PrismaClient();
 
 class AuthService {
-  async signup(email: string, password: string) {
+  async signup(email: string, password: string, name: string) {
     const hashedPassword = await bcrypt.hash(password, 10);
-    return await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
+        name,
       },
     });
   }
-
+  
   async login(email: string, password: string) {
     const user = await prisma.user.findUnique({
       where: {
