@@ -1,0 +1,103 @@
+import { getStreaks, updateStreakCount, resetStreak, createStreak, deleteStreak } from '../api';
+import { debounce } from '../utils';
+
+let streaksData: any[] = [];
+
+const debouncedRenderStreak = debounce(async (container: HTMLElement) => {
+    if (!container) {
+        console.error('Streak container not found');
+        return;
+    }
+
+    try {
+        console.log('Rendering streaks...');
+        streaksData = await getStreaks();
+        console.log('Streaks data received:', streaksData);
+
+        renderStreaksList(container);
+    } catch (error) {
+        console.error('Render streak error:', error);
+        container.innerHTML = `<p>Failed to load streak data. Error: ${error instanceof Error ? error.message : 'Unknown error'}</p>`;
+    }
+}, 300);
+
+function renderStreaksList(container: HTMLElement) {
+    const streaksList = document.getElementById('streaks-list');
+    if (streaksList && Array.isArray(streaksData)) {
+        streaksList.innerHTML = '';
+
+        streaksData.forEach((streak: any) => {
+            if (streak && streak.name && streak.count !== undefined && streak.lastReset !== undefined) {
+                const streakElement = document.createElement('div');
+                streakElement.innerHTML = `
+                    <h3>${streak.name}</h3>
+                    <p>Current streak: ${streak.count} days</p>
+                    <p>Last reset: ${new Date(streak.lastReset).toLocaleDateString()}</p>
+                    <button class="update-streak" data-id="${streak.id}">Increment Streak</button>
+                    <button class="reset-streak" data-id="${streak.id}">Reset Streak</button>
+                    <button class="delete-streak" data-id="${streak.id}">Delete Streak</button>
+                `;
+                streaksList.appendChild(streakElement);
+            } else {
+                console.error('Invalid streak format:', streak);
+            }
+        });
+    } else {
+        console.error('Invalid streaks data format');
+    }
+}
+
+export async function renderStreak(container: HTMLElement | null) {
+    if (!container) {
+        console.error('Streak container not found');
+        return;
+    }
+
+    container.innerHTML = `
+        <h2>Your Streaks</h2>
+        <div id="streaks-list"></div>
+        <h3>Create New Streak</h3>
+        <form id="create-streak-form">
+            <input type="text" id="streak-name" placeholder="Streak Name" required>
+            <button type="submit">Create Streak</button>
+        </form>
+    `;
+
+    const createStreakForm = document.getElementById('create-streak-form') as HTMLFormElement;
+
+    createStreakForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = (document.getElementById('streak-name') as HTMLInputElement).value;
+        
+        try {
+            await createStreak(name);
+            debouncedRenderStreak(container);
+        } catch (error) {
+            console.error('Create streak error:', error);
+            alert('Failed to create streak');
+        }
+    });
+
+    container.addEventListener('click', async (e) => {
+        if (e.target instanceof HTMLElement) {
+            const streakId = e.target.getAttribute('data-id');
+            if (streakId) {
+                try {
+                    if (e.target.classList.contains('update-streak')) {
+                        await updateStreakCount(streakId);
+                    } else if (e.target.classList.contains('reset-streak')) {
+                        await resetStreak(streakId);
+                    } else if (e.target.classList.contains('delete-streak')) {
+                        await deleteStreak(streakId);
+                    }
+                    debouncedRenderStreak(container);
+                } catch (error) {
+                    console.error('Streak action error:', error);
+                    alert('Failed to perform action on streak');
+                }
+            }
+        }
+    });
+
+    debouncedRenderStreak(container);
+}

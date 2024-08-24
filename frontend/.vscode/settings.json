@@ -1,0 +1,14 @@
+{
+    "liveServer.settings.host": "127.0.0.1",
+    "liveServer.settings.root": "/",
+    "liveServer.settings.CustomBrowser": "chrome",
+    "liveServer.settings.https": {
+      "enable": false,
+      "cert": "",
+      "key": "",
+      "passphrase": ""
+    },
+    "liveServer.settings.mimeTypes": {
+      "js": "application/javascript"
+    }
+  }

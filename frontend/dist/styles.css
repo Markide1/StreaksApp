@@ -1,0 +1,272 @@
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+#app {
+  background-color: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  width: 100%;
+}
+
+button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+button:hover {
+  background-color: #357ae8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1.25rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  transition: border-color 0.3s ease;
+  font-size: 1rem;
+}
+
+input:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+/* Home Page */
+.home {
+  text-align: center;
+}
+
+.home h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.home p {
+  font-size: 1.2rem;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.home .btn-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Auth Pages */
+.auth-container {
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+  font-size: 2rem;
+  color: #333;
+}
+
+.auth-header p {
+  font-size: 1rem;
+  color: #666;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-form input {
+  margin-bottom: 1rem;
+}
+
+.auth-form button {
+  margin-top: 1rem;
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.auth-link a {
+  color: #4a90e2;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.auth-link a:hover {
+  color: #357ae8;
+}
+
+/* Dashboard and Streaks */
+#streak-container {
+  padding: 20px 0;
+}
+
+.streaks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.streak-item {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.streak-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.streak-name {
+  font-size: 1.75em;
+  margin-bottom: 12px;
+  color: #333;
+  font-weight: 700;
+}
+
+.streak-description {
+  margin-bottom: 16px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.streak-stats {
+  margin-bottom: 16px;
+  font-weight: 600;
+  color: #4a90e2;
+}
+
+.streak-button {
+  background-color: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-right: 12px;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.streak-button:hover {
+  background-color: #357ae8;
+  transform: translateY(-2px);
+}
+
+.streak-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 28px;
+  background-color: #f9f9f9;
+  padding: 24px;
+  border-radius: 12px;
+}
+
+.streak-input {
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.streak-input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.streak-form button {
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+/* Reset Password */
+.reset-password {
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.reset-password h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.reset-password p {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.reset-password input {
+  margin-bottom: 1rem;
+}
+
+.reset-password button {
+  margin-top: 1rem;
+}
+
+/* Media Queries */
+@media (max-width: 600px) {
+  #app {
+    padding: 1.5rem;
+  }
+  
+  .streak-item {
+    padding: 20px;
+  }
+  
+  .home h1 {
+    font-size: 2rem;
+  }
+
+  .home p {
+    font-size: 1rem;
+  }
+
+  .auth-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .reset-password h2 {
+    font-size: 1.75rem;
+  }
+}
