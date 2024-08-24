@@ -1,55 +1,80 @@
-import { NextFunction, Request, Response } from 'express';
-import streaksService from '../services/streakService';
+import { Request, Response } from 'express';
+import * as streakService from '../services/streakService';
 
-class StreaksController {
-  async createStreak(req: Request, res: Response, next: NextFunction) {
-    const { userId, title } = req.body;
-    const streak = await streaksService.createStreak(userId, title);
-    res.status(201).json(streak);
-  }
+const getUserId = (req: Request): string | null => {
+  return (req as any).user?.id || null;
+};
 
-  async updateStreak(req: Request, res: Response, next: NextFunction) {
-    const { userId, streakId } = req.params;
-    const { title, count } = req.body;
-    const updatedStreak = await streaksService.updateStreak(userId, streakId, { title, count });
-    res.status(200).json(updatedStreak);
-  }
-
-  async deleteStreak(req: Request, res: Response, next: NextFunction) {
-    const { userId, streakId } = req.params;
-    await streaksService.deleteStreak(userId, streakId);
-    res.status(204).end();
-  }
-
-  async incrementStreakCount(req: Request, res: Response, next: NextFunction) {
-    const { userId, streakId } = req.params;
-    const updatedStreak = await streaksService.incrementStreakCount(userId, streakId);
-    res.status(200).json(updatedStreak);
-  }
-
-  async getStreaks(req: Request, res: Response, next: NextFunction) {
-    const { userId } = req.params;
-    const streaks = await streaksService.getStreaks(userId);
+export const getStreaks = async (req: Request, res: Response) => {
+  console.log('Entered getStreaks controller');
+  try {
+    const userId = getUserId(req);
+    console.log('User ID:', userId);
+    if (userId === null) {
+      console.log('User ID is null, sending 401');
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const streaks = await streakService.getStreaks(userId);
+    console.log('Streaks retrieved:', streaks);
     res.status(200).json(streaks);
+  } catch (error) {
+    console.error('Error in getStreaks:', error);
+    res.status(400).json({ error: (error as Error).message });
   }
+};
 
-  async resetStreakCounter(req: Request, res: Response, next: NextFunction) {
-    const { userId } = req.params;
-    await streaksService.resetStreakCounter(userId);
-    res.status(200).json({ message: 'Streak counter reset successfully' });
+export const createStreak = async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (userId === null) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { name } = req.body;
+    const streak = await streakService.createStreak(userId, name);
+    res.status(201).json(streak);
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
   }
+};
 
-  async getLongestStreak(req: Request, res: Response, next: NextFunction) {
-    const { userId } = req.params;
-    const longestStreak = await streaksService.getLongestStreak(userId);
-    res.status(200).json(longestStreak);
+export const increaseStreakCount = async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (userId === null) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const streakId = req.params.streakId;
+    const streak = await streakService.increaseStreakCount(userId, streakId);
+    res.status(200).json(streak);
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
   }
+};
 
-  async getUpdatedStreaks(req: Request, res: Response, next: NextFunction) {
-    const { userId } = req.params;
-    const updatedStreaks = await streaksService.getUpdatedStreaks(userId);
-    res.status(200).json(updatedStreaks);
+export const deleteStreak = async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (userId === null) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const id = req.params.id;
+    await streakService.deleteStreak(id, userId);
+    res.status(204).end();
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
   }
-}
+};
 
-export default new StreaksController();
+export const resetStreak = async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (userId === null) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const streakId = req.params.streakId;
+    const streak = await streakService.resetStreak(userId, streakId);
+    res.status(200).json(streak);
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+  }
+};

@@ -1,26 +1,42 @@
-import { NextFunction, Request, Response } from 'express';
-import authService from '../services/authService';
+import { Request, Response } from 'express';
+import * as authService from '../services/authService';
+import { EmailService } from '../services/emailService';
 
-class AuthController {
-  async signup(req: Request, res: Response, next: NextFunction) {
-    const { email, password, name } = req.body;
-    try {
-      const user = await authService.signup(email, password, name);
-      res.status(201).json({ message: 'Signup successful. Please log in.' });
-    } catch (error) {
-      next(error);
-    }
+const emailService = new EmailService();
+
+export const signup = async (req: Request, res: Response) => {
+  try {
+    const { email, password, username } = req.body;
+    const user = await authService.signup(email, password, username);
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
   }
+};
 
-  async login(req: Request, res: Response, next: NextFunction) {
+export const login = async (req: Request, res: Response) => {
+  try {
     const { email, password } = req.body;
-    try {
-      const { user, token } = await authService.login(email, password);
-      res.status(200).json({ user, token });
-    } catch (error) {
-      next(error);
+    const token = await authService.login(email, password);
+    if (!token) {
+      throw new Error('No token received');
     }
+    res.json({ token });
+  } catch (error) {
+    res.status(401).json({ error: (error as Error).message });
   }
-}
+};
 
-export default new AuthController();
+export const logout = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.id;
+    const result = await authService.logout(userId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+export const handleSignup = signup;
+export const handleLogin = login;
+export const handleLogout = logout;

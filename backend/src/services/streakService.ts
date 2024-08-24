@@ -1,95 +1,52 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import {v4 as uuidv4} from 'uuid'
 
 const prisma = new PrismaClient();
 
-class StreaksService {
-  async updateStreak(userId: string, streakId: string, data: { title?: string; count?: number }) {
-    try {
-      return await prisma.streak.update({
-        where: {
-          id: streakId,
-          userId,
-        },
-        data,
-      });
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
-        // Record to update not found
-        throw new Error(`Streak with ID ${streakId} not found for user ${userId}`);
-      } else {
-        throw error;
-      }
-    }
+export const getStreaks = async (userId: string) => {
+  return prisma.streak.findMany({ where: { userId } });
+};
+
+export const createStreak = async (userId: string, name: string) => {
+  return prisma.streak.create({ data: { 
+    id:uuidv4(),
+    userId, 
+    name 
+  } });
+};
+
+export const increaseStreakCount = async (userId: string, streakId: string) => {
+  const streak = await prisma.streak.findUnique({
+    where: { id: streakId },
+  });
+
+  if (streak?.userId !== userId) {
+    throw new Error("Streak does not belong to the user");
   }
 
-  async deleteStreak(userId: string, streakId: string) {
-    await prisma.streak.delete({
-      where: {
-        id: streakId,
-        userId,
-      },
-    });
+  return prisma.streak.update({
+    where: { id: streakId },
+    data: { count: { increment: 1 } },
+  });
+};
+
+export const deleteStreak = async (id: string, userId: string) => {
+    const streak = await prisma.streak.findUnique({
+    where: { id },
+  });
+
+  if (streak?.userId !== userId) {
+    throw new Error("Streak does not belong to the user");
   }
 
-  async incrementStreakCount(userId: string, streakId: string) {
-    return await prisma.streak.update({
-      where: {
-        id: streakId,
-        userId,
-      },
-      data: {
-        count: {
-          increment: 1,
-        },
-      },
-    });
-  }
+  return prisma.streak.delete({
+    where: { id },
+  });
+};
 
-  async getStreaks(userId: string) {
-    return await prisma.streak.findMany({
-      where: {
-        userId,
-      },
-    });
-  }
-
-  async resetStreakCounter(userId: string) {
-    await prisma.streak.updateMany({
-      where: {
-        userId,
-      },
-      data: {
-        count: 0,
-      },
-    });
-  }
-
-  async getLongestStreak(userId: string) {
-    const streaks = await prisma.streak.findMany({
-      where: {
-        userId,
-      },
-      orderBy: {
-        count: 'desc',
-      },
-      take: 1,
-    });
-
-    return streaks[0] || null;
-  }
-
-  async getUpdatedStreaks(userId: string) {
-    return await prisma.streak.findMany({
-      where: {
-        userId,
-      },
-      orderBy: {
-        updatedAt: 'desc',
-      },
-      take: 5,
-    });
-  }
-}
-
-export default new StreaksService();
+export const resetStreak = async (userId: string, streakId: string) => {
+  return prisma.streak.update({
+    where: { id: streakId },
+    data: { count: 0 },
+  });
+};
