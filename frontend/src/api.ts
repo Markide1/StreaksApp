@@ -1,5 +1,7 @@
 const API_URL = 'http://localhost:3000';
 
+import { validateEmail, validatePassword, validateUsername } from './validators/userProfileValidator';
+
 export async function login(email: string, password: string): Promise<void> {
   const response = await fetch(`${API_URL}/api/auth/login`, {
     method: 'POST',
@@ -47,6 +49,16 @@ export async function getStreaks(): Promise<any> {
 }
 
 export async function signup(email: string, username: string, password: string): Promise<any> {
+  if (!validateEmail(email)) {
+    throw new Error('Invalid email format');
+  }
+  if (!validatePassword(password)) {
+    throw new Error('Password must be at least 6 characters long');
+  }
+  if (!validateUsername(username)) {
+    throw new Error('Username must be 3-30 characters long and contain only letters, numbers, and underscores');
+  }
+
   try {
     const response = await fetch(`${API_URL}/api/auth/signup`, {
       method: 'POST',
