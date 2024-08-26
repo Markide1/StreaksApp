@@ -13,6 +13,8 @@ CREATE TABLE [dbo].[User] (
     [updatedAt] DATETIME2 NOT NULL,
     [username] NVARCHAR(1000) NOT NULL,
     [profilePhotoUrl] NVARCHAR(1000),
+    [emailVerificationCode] NVARCHAR(1000),
+    [newEmail] NVARCHAR(1000),
     CONSTRAINT [User_pkey] PRIMARY KEY CLUSTERED ([id]),
     CONSTRAINT [User_email_key] UNIQUE NONCLUSTERED ([email])
 );

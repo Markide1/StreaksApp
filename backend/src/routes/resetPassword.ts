@@ -88,6 +88,9 @@ router.post('/reset-password/:code', async (req: Request, res: Response) => {
             }
         });
 
+        // Send password changed email notification
+        await emailService.sendPasswordChangedEmail(user.email);
+
         res.status(200).json({ message: 'Password has been updated' });
     } catch (error) {
         console.error('Password update error:', error);

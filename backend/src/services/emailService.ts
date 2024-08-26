@@ -75,4 +75,49 @@ export class EmailService {
       return false;
     }
   }
+
+  async sendVerificationEmail(toEmail: string, verificationCode: string): Promise<boolean> {
+    try {
+        const mailOptions = {
+            from: `"Habit Tracker" <${process.env.EMAIL_NAME}>`,
+            to: toEmail,
+            subject: 'Email Verification Code',
+            html: `
+                <h1>Email Verification Code</h1>
+                <p>Your email verification code is:</p>
+                <h2>${verificationCode}</h2>
+                <p>Please enter this code to verify your new email address.</p>
+            `
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Verification email sent: ', info.messageId);
+        return true;
+    } catch (error) {
+        console.error('Error sending verification email: ', error);
+        return false;
+    }
+  }
+
+  async sendPasswordChangedEmail(email: string): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: `"Habit Tracker" <${process.env.EMAIL_NAME}>`,
+        to: email,
+        subject: 'Password Changed Notification',
+        html: `
+          <h1>Password Changed</h1>
+          <p>Your password has been successfully changed.</p>
+          <p>If you did not make this change, please contact support immediately.</p>
+        `
+      };
+
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Password changed email sent: ', info.messageId);
+      return true;
+    } catch (error) {
+      console.error('Error sending password changed email: ', error);
+      return false;
+    }
+  }
 }

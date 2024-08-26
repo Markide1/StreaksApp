@@ -220,7 +220,7 @@ export function logout(): void {
   localStorage.removeItem('userId');
 }
 
-export async function updateUserProfile(username: string | null, email: string | null, password: string | null): Promise<boolean> {
+export async function updateUserProfile(username: string | null, email: string | null, password: string | null): Promise<boolean | 'verification_required'> {
     const token = localStorage.getItem('token');
     if (!token) {
         throw new Error('No token found');
@@ -252,6 +252,21 @@ export async function updateUserProfile(username: string | null, email: string |
         body: JSON.stringify(updateData),
     });
 
+    if (response.status === 200) {
+        const text = await response.text();
+        if (text === 'OK') {
+            return true;
+        }
+        try {
+            const responseData = JSON.parse(text);
+            if (responseData.message === 'Verification code sent to new email') {
+                return 'verification_required';
+            }
+        } catch (error) {
+            console.error('Error parsing response:', error);
+        }
+    }
+
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         if (errorData.code === 'USERNAME_EXISTS') {
@@ -264,6 +279,27 @@ export async function updateUserProfile(username: string | null, email: string |
     }
 
     return true;
+}
+
+export async function verifyEmail(verificationCode: string): Promise<void> {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        throw new Error('No token found');
+    }
+
+    const response = await fetch(`${API_URL}/api/users/verify-email`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ verificationCode }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to verify email: ${response.statusText}`);
+    }
 }
 
 export async function uploadProfilePhoto(photo: File): Promise<void> {

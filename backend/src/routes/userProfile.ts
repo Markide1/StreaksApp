@@ -7,7 +7,8 @@ import path from 'path';
 import { error } from 'winston';
 import fs from 'fs';
 import { updateProfileSchema, uploadPhotoSchema } from '../validators/userProfileValidator';
-
+import { EmailService } from '../services/emailService';
+ 
 const router = express.Router();
 const prisma = new PrismaClient();
 
@@ -52,16 +53,35 @@ router.put('/profile', authenticateToken, async (req: express.Request, res: expr
             updateData.username = username;
         }
 
-        if (email !== undefined && email !== '') {
+        if (email !== undefined && email !== '' && email !== user.email) {
             const existingUser = await prisma.user.findUnique({ where: { email } });
             if (existingUser && existingUser.id !== userId) {
                 return res.status(400).json({ code: 'EMAIL_EXISTS', message: 'Email already exists' });
             }
-            updateData.email = email;
+            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // Update user with new email and verification code
+            await prisma.user.update({
+                where: { id: userId },
+                data: { 
+                    newEmail: email,
+                    emailVerificationCode: verificationCode
+                }
+            });
+
+            // Send verification email
+            const emailService = new EmailService();
+            await emailService.sendVerificationEmail(email, verificationCode);
+
+            return res.status(200).json({ message: 'Verification code sent to new email' });
         }
 
         if (password !== undefined && password !== '') {
             updateData.password = await bcrypt.hash(password, 10);
+            
+            // Send password changed email
+            const emailService = new EmailService();
+            await emailService.sendPasswordChangedEmail(user.email);
         }
 
         if (Object.keys(updateData).length > 0) {
@@ -71,9 +91,47 @@ router.put('/profile', authenticateToken, async (req: express.Request, res: expr
             });
         }
 
-        res.sendStatus(200);
+        res.status(200).json({ message: 'Profile updated successfully' });
     } catch (error) {
         console.error('Update profile error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+router.post('/verify-email', authenticateToken, async (req: express.Request, res: express.Response) => {
+    const { verificationCode } = req.body;
+    const userId = (req as any).user.id;
+
+    try {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+
+        if (!user) {
+            return res.status(400).json({ message: 'User not found' });
+        }
+
+        if (!user.emailVerificationCode || user.emailVerificationCode !== verificationCode) {
+            console.log(`Failed email verification attempt for user ${userId}`);
+            return res.status(400).json({ message: 'Invalid verification code' });
+        }
+
+        if (!user.newEmail) {
+            return res.status(400).json({ message: 'No new email to verify' });
+        }
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                email: user.newEmail,
+                newEmail: null,
+                emailVerificationCode: null,
+                isEmailVerified: true
+            }
+        });
+
+        console.log(`Email successfully verified for user ${userId}`);
+        res.status(200).json({ message: 'Email successfully updated and verified' });
+    } catch (error) {
+        console.error('Email verification error:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });

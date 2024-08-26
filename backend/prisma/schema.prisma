@@ -18,6 +18,9 @@ model User {
   username                 String
   profilePhotoUrl          String?
   streaks                  Streak[]
+  emailVerificationCode    String?
+  newEmail                 String?
+  isEmailVerified Boolean @default(false)
 }
 
 model Streak {

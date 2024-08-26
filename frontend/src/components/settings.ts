@@ -1,6 +1,11 @@
-import { updateUserProfile, uploadProfilePhoto } from '../api';
+import { updateUserProfile, uploadProfilePhoto, verifyEmail } from '../api';
 import { handleError } from '../utils/errorHandler';
 import { navigate } from '../main';
+
+interface ProfileUpdateResult {
+    verificationRequired?: boolean;
+    success: boolean;
+}
 
 export function renderSettings(container: HTMLElement | null) {
     if (!container) {
@@ -129,32 +134,30 @@ export function renderSettings(container: HTMLElement | null) {
         const profilePhoto = (document.getElementById('profile-photo') as HTMLInputElement).files?.[0];
 
         console.log('Submitting settings form:', { username, email, password: password ? '[REDACTED]' : undefined, profilePhoto: profilePhoto ? profilePhoto.name : undefined });
-
         try {
-            const profileUpdated = await updateUserProfile(username, email, password);
-            console.log('Profile update response:', profileUpdated);
+            const profileUpdateResult = await updateUserProfile(username, email, password);
+            console.log('Profile update response:', profileUpdateResult);
 
-            let photoUploaded = false;
-            if (profilePhoto) {
-                console.log('Uploading profile photo:', profilePhoto.name);
-                try {
-                    await uploadProfilePhoto(profilePhoto);
-                    console.log('Profile photo uploaded successfully');
-                    photoUploaded = true;
-                } catch (photoError) {
-                    console.error('Error uploading profile photo:', photoError);
-                    throw new Error(`Failed to upload profile photo: ${handleError(photoError)}`);
+            if (profileUpdateResult === 'verification_required') {
+                const verificationCode = prompt('Please enter the verification code sent to your new email:');
+                if (verificationCode) {
+                    await verifyEmail(verificationCode);
+                    console.log('Email verified successfully');
+                    alert('Profile updated and email verified successfully');
+                } else {
+                    throw new Error('Email verification cancelled');
                 }
-            }
-
-            if (profileUpdated || photoUploaded) {
+            } else {
                 console.log('Profile updated successfully');
                 alert('Profile updated successfully');
-                navigate('dashboard');
-            } else {
-                console.log('No changes were made to the profile');
-                alert('No changes were made to your profile');
             }
+
+            if (profilePhoto) {
+                await uploadProfilePhoto(profilePhoto);
+                console.log('Profile photo uploaded successfully');
+            }
+
+            navigate('dashboard');
         } catch (error) {
             console.error('Error updating profile:', error);
             const errorMessage = handleError(error);
