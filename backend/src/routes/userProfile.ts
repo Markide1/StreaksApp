@@ -41,30 +41,35 @@ router.put('/profile', authenticateToken, async (req: express.Request, res: expr
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        if (username && username !== user.username) {
-            const existingUser = await prisma.user.findFirst({ where: { username: username } });
-            if (existingUser) {
+
+        const updateData: any = {};
+
+        if (username !== undefined && username !== '') {
+            const existingUser = await prisma.user.findFirst({ where: { username } });
+            if (existingUser && existingUser.id !== userId) {
                 return res.status(400).json({ code: 'USERNAME_EXISTS', message: 'Username already exists' });
             }
-            user.username = username;
+            updateData.username = username;
         }
 
-        if (email && email !== user.email) {
+        if (email !== undefined && email !== '') {
             const existingUser = await prisma.user.findUnique({ where: { email } });
-            if (existingUser) {
+            if (existingUser && existingUser.id !== userId) {
                 return res.status(400).json({ code: 'EMAIL_EXISTS', message: 'Email already exists' });
             }
-            user.email = email;
+            updateData.email = email;
         }
 
-        if (password) {
-            user.password = await bcrypt.hash(password, 10);
+        if (password !== undefined && password !== '') {
+            updateData.password = await bcrypt.hash(password, 10);
         }
 
-        await prisma.user.update({
-            where: { id: userId },
-            data: user,
-        });
+        if (Object.keys(updateData).length > 0) {
+            await prisma.user.update({
+                where: { id: userId },
+                data: updateData,
+            });
+        }
 
         res.sendStatus(200);
     } catch (error) {
@@ -74,10 +79,9 @@ router.put('/profile', authenticateToken, async (req: express.Request, res: expr
 });
 
 router.post('/profile/photo', authenticateToken, upload.single('photo'), async (req: express.Request, res: express.Response) => {
-    const { error, value } = uploadPhotoSchema.validate(req.body);
-    if (error) {
-        return res.status(400).json({ message: error.details[0].message });
-    }
+    console.log('Received file upload request');
+    console.log('Request body:', req.body);
+    console.log('Request file:', req.file);
 
     const userId = (req as any).user.id;
 

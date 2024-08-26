@@ -128,15 +128,35 @@ export function renderSettings(container: HTMLElement | null) {
         const password = (document.getElementById('password') as HTMLInputElement).value;
         const profilePhoto = (document.getElementById('profile-photo') as HTMLInputElement).files?.[0];
 
-        try {
-            await updateUserProfile(username, email, password);
+        console.log('Submitting settings form:', { username, email, password: password ? '[REDACTED]' : undefined, profilePhoto: profilePhoto ? profilePhoto.name : undefined });
 
+        try {
+            const profileUpdated = await updateUserProfile(username, email, password);
+            console.log('Profile update response:', profileUpdated);
+
+            let photoUploaded = false;
             if (profilePhoto) {
-                await uploadProfilePhoto(profilePhoto);
+                console.log('Uploading profile photo:', profilePhoto.name);
+                try {
+                    await uploadProfilePhoto(profilePhoto);
+                    console.log('Profile photo uploaded successfully');
+                    photoUploaded = true;
+                } catch (photoError) {
+                    console.error('Error uploading profile photo:', photoError);
+                    throw new Error(`Failed to upload profile photo: ${handleError(photoError)}`);
+                }
             }
 
-            alert('Profile updated successfully');
+            if (profileUpdated || photoUploaded) {
+                console.log('Profile updated successfully');
+                alert('Profile updated successfully');
+                navigate('dashboard');
+            } else {
+                console.log('No changes were made to the profile');
+                alert('No changes were made to your profile');
+            }
         } catch (error) {
+            console.error('Error updating profile:', error);
             const errorMessage = handleError(error);
             alert(`Failed to update profile: ${errorMessage}`);
         }

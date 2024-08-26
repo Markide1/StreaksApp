@@ -220,7 +220,7 @@ export function logout(): void {
   localStorage.removeItem('userId');
 }
 
-export async function updateUserProfile(username: string | null, email: string | null, password: string | null): Promise<void> {
+export async function updateUserProfile(username: string | null, email: string | null, password: string | null): Promise<boolean> {
     const token = localStorage.getItem('token');
     if (!token) {
         throw new Error('No token found');
@@ -228,14 +228,19 @@ export async function updateUserProfile(username: string | null, email: string |
 
     const updateData: { username?: string; email?: string; password?: string } = {};
 
-    if (username !== null) {
+    if (username !== null && username !== '') {
         updateData.username = username;
     }
-    if (email !== null) {
+    if (email !== null && email !== '') {
         updateData.email = email;
     }
-    if (password !== null) {
+    if (password !== null && password !== '') {
         updateData.password = password;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+        // No fields to update
+        return false;
     }
 
     const response = await fetch(`${API_URL}/api/users/profile`, {
@@ -257,17 +262,24 @@ export async function updateUserProfile(username: string | null, email: string |
             throw new Error(errorData.message || `Failed to update profile: ${response.statusText}`);
         }
     }
+
+    return true;
 }
 
 export async function uploadProfilePhoto(photo: File): Promise<void> {
+    console.log('Uploading profile photo:', photo.name);
     const token = localStorage.getItem('token');
     if (!token) {
+        console.error('No token found');
         throw new Error('No token found');
     }
 
     const formData = new FormData();
-    formData.append('photo', photo);
+    formData.append('photo', photo, photo.name);
 
+    console.log('FormData contents:', formData);
+
+    console.log('Sending photo upload request');
     const response = await fetch(`${API_URL}/api/users/profile/photo`, {
         method: 'POST',
         headers: {
@@ -276,8 +288,12 @@ export async function uploadProfilePhoto(photo: File): Promise<void> {
         body: formData,
     });
 
+    console.log('Photo upload response status:', response.status);
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('Photo upload error:', errorData);
         throw new Error(errorData.message || `Failed to upload profile photo: ${response.statusText}`);
     }
+
+    console.log('Profile photo uploaded successfully');
 }
