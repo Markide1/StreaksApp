@@ -1,5 +1,6 @@
 import { getStreaks, updateStreakCount, resetStreak, createStreak, deleteStreak } from '../api';
 import { debounce } from '../utils';
+import { handleError } from '../utils/errorHandler';
 
 let streaksData: any[] = [];
 
@@ -33,9 +34,9 @@ function renderStreaksList(container: HTMLElement) {
                     <h3>${streak.name}</h3>
                     <p>Current streak: ${streak.count} days</p>
                     <p>Last reset: ${new Date(streak.lastReset).toLocaleDateString()}</p>
-                    <button class="update-streak" data-id="${streak.id}">Increment Streak</button>
-                    <button class="reset-streak" data-id="${streak.id}">Reset Streak</button>
-                    <button class="delete-streak" data-id="${streak.id}">Delete Streak</button>
+                    <button class="update-streak" data-id="${streak.id}">Update</button>
+                    <button class="reset-streak" data-id="${streak.id}">Reset</button>
+                    <button class="delete-streak" data-id="${streak.id}">Delete</button>
                 `;
                 streaksList.appendChild(streakElement);
             } else {
@@ -54,12 +55,11 @@ export async function renderStreak(container: HTMLElement | null) {
     }
 
     container.innerHTML = `
-        <h2>Your Streaks</h2>
         <div id="streaks-list"></div>
         <h3>Create New Streak</h3>
         <form id="create-streak-form">
             <input type="text" id="streak-name" placeholder="Streak Name" required>
-            <button type="submit">Create Streak</button>
+            <button type="submit">Create</button>
         </form>
     `;
 
@@ -73,8 +73,8 @@ export async function renderStreak(container: HTMLElement | null) {
             await createStreak(name);
             debouncedRenderStreak(container);
         } catch (error) {
-            console.error('Create streak error:', error);
-            alert('Failed to create streak');
+            const errorMessage = handleError(error);
+            alert(`Failed to create streak: ${errorMessage}`);
         }
     });
 

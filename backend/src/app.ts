@@ -2,15 +2,17 @@ import express, { Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
 import * as streakController from './controllers/streakController';
 import * as authController from './controllers/authController';
-import { authMiddleware } from './middleware/authenticateToken';
+import { authenticateToken } from './middleware/authenticateToken';
 import resetPasswordRoutes from './routes/resetPassword';
 import authRoutes from './routes/authRoutes';
 import * as dotenv from 'dotenv';
 import cors from 'cors';
-
+import { errorHandler } from './middleware/errorHandler';
+import logger from './utils/logger';
+import path from 'path'; 
 dotenv.config();
 
-console.log('Email configuration:', {
+logger.info('Email configuration:', {
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
   user: process.env.EMAIL_NAME,
@@ -53,26 +55,26 @@ app.use('/api/auth', authRoutes);
 app.use('/api/auth', resetPasswordRoutes);
 
 // Protected routes
-app.use('/api/streaks', authMiddleware);
+app.use('/api/streaks', authenticateToken);
 app.get('/api/streaks', streakController.getStreaks);
 app.post('/api/streaks', streakController.createStreak);
 app.put('/api/streaks/:streakId/increase', streakController.increaseStreakCount);
 app.delete('/api/streaks/:id', streakController.deleteStreak);
 app.put('/api/streaks/:streakId/reset', streakController.resetStreak);
+import userProfileRouter from './routes/userProfile'; // Ensure the router is imported
+
+// User profile routes
+app.use('/api/users', userProfileRouter);
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error('Error details:', err);
-  res.status(500).json({
-    message: 'An error occurred',
-    error: err.message,
-    stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
-  });
-});
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`);
 });
 
 export default app;

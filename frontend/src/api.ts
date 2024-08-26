@@ -76,7 +76,7 @@ export async function createStreak(name: string): Promise<any> {
 
     const response = await fetch(`${API_URL}/api/streaks`, {
       method: 'POST',
-      headers: { 
+      headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
@@ -95,7 +95,7 @@ export async function createStreak(name: string): Promise<any> {
   }
 }
 
-export async function deleteStreak(streakId: string): Promise<any> {
+export async function deleteStreak(streakId: string): Promise<void> {
   try {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -112,7 +112,7 @@ export async function deleteStreak(streakId: string): Promise<any> {
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
-    return response.json();
+    // No need to parse JSON for a successful deletion
   } catch (error) {
     console.error('Delete streak error:', error);
     throw error;
@@ -206,4 +206,66 @@ export async function resetPassword(resetCode: string, newPassword: string): Pro
 export function logout(): void {
   localStorage.removeItem('token');
   localStorage.removeItem('userId');
+}
+
+export async function updateUserProfile(username: string | null, email: string | null, password: string | null): Promise<void> {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        throw new Error('No token found');
+    }
+
+    const updateData: { username?: string; email?: string; password?: string } = {};
+
+    if (username !== null) {
+        updateData.username = username;
+    }
+    if (email !== null) {
+        updateData.email = email;
+    }
+    if (password !== null) {
+        updateData.password = password;
+    }
+
+    const response = await fetch(`${API_URL}/api/users/profile`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(updateData),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.code === 'USERNAME_EXISTS') {
+            throw new Error('Username already exists');
+        } else if (errorData.code === 'EMAIL_EXISTS') {
+            throw new Error('Email already exists');
+        } else {
+            throw new Error(errorData.message || `Failed to update profile: ${response.statusText}`);
+        }
+    }
+}
+
+export async function uploadProfilePhoto(photo: File): Promise<void> {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        throw new Error('No token found');
+    }
+
+    const formData = new FormData();
+    formData.append('photo', photo);
+
+    const response = await fetch(`${API_URL}/api/users/profile/photo`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to upload profile photo: ${response.statusText}`);
+    }
 }

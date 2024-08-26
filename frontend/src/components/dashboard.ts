@@ -7,11 +7,19 @@ export function renderDashboard(container: HTMLElement | null) {
         console.error('Dashboard container not found');
         return;
     }
-
     console.log('Rendering dashboard...');
+    const username = localStorage.getItem('username');
     container.innerHTML = `
-        <h1>Dashboard</h1>
-        <div id="streak-container"></div>
+        <h1>Current Streaks</h1>
+        <div id="streak-container">
+            <div id="streaks-list"></div>
+            <h3>Create New Streak</h3>
+            <form id="create-streak-form">
+                <input type="text" id="streak-name" placeholder="Streak Name" required>
+                <button type="submit">Create</button>
+            </form>
+        </div>
+        <button id="settings-button">Settings</button>
         <button id="logout-button">Logout</button>
     `;
 
@@ -32,5 +40,10 @@ export function renderDashboard(container: HTMLElement | null) {
             console.error('Logout error:', error);
             alert('Failed to logout. Please try again.');
         }
+    });
+
+    const settingsButton = document.getElementById('settings-button');
+    settingsButton?.addEventListener('click', () => {
+        navigate('settings');
     });
 }

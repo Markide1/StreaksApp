@@ -4,6 +4,7 @@ import { renderSignup } from './components/signup';
 import { renderHome } from './components/home';
 import { renderPasswordReset } from './components/passwordReset';
 import { renderSetNewPassword } from './components/setNewPassword';
+import { renderSettings } from './components/settings';
 
 const routes: { [key: string]: (container: HTMLElement) => void } = {
     home: renderHome,
@@ -12,6 +13,7 @@ const routes: { [key: string]: (container: HTMLElement) => void } = {
     signup: renderSignup,
     passwordReset: renderPasswordReset,
     setNewPassword: renderSetNewPassword,
+    settings: renderSettings,
 };
 
 export function navigate(route: string) {
@@ -59,4 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error('Logout button not found');
     }
+});
+
+window.addEventListener('error', (event) => {
+  console.error('Unhandled error:', event.error);
+  alert('An unexpected error occurred. Please try again later.');
 });

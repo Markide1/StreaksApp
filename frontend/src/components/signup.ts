@@ -11,6 +11,7 @@ export function renderSignup(container: HTMLElement | null) {
             <input type="username" id="username" placeholder="Username" required>
             <input type="password" id="password" placeholder="Password" required>
             <button type="submit">Sign Up</button>
+            <button id="back-btn">Back</button>
         </form>
         <p id="message"></p>
         <p>Already have an account? <a href="#" id="login-link">Login</a></p>
@@ -19,6 +20,7 @@ export function renderSignup(container: HTMLElement | null) {
     const form = document.getElementById('signup-form') as HTMLFormElement;
     const loginLink = document.getElementById('login-link');
     const messageElement = document.getElementById('message');
+    const backBtn = document.getElementById('back-btn') as HTMLButtonElement;
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -57,5 +59,9 @@ export function renderSignup(container: HTMLElement | null) {
     loginLink?.addEventListener('click', (e) => {
         e.preventDefault();
         navigate('login');
+    });
+
+    backBtn.addEventListener('click', () => {
+        navigate('home');
     });
 }

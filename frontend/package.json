@@ -23,6 +23,8 @@
   },
   "dependencies": {
     "express": "^4.19.2",
+    "google-auth-library": "^9.14.0",
+    "googleapis": "^142.0.0",
     "undici-types": "^6.18.2"
   },
   "description": ""

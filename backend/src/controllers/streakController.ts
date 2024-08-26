@@ -1,29 +1,25 @@
 import { Request, Response } from 'express';
 import * as streakService from '../services/streakService';
+import { NextFunction } from 'express';
 
 const getUserId = (req: Request): string | null => {
   return (req as any).user?.id || null;
 };
 
-export const getStreaks = async (req: Request, res: Response) => {
-  console.log('Entered getStreaks controller');
+export const getStreaks = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = getUserId(req);
-    console.log('User ID:', userId);
     if (userId === null) {
-      console.log('User ID is null, sending 401');
       return res.status(401).json({ error: "Unauthorized" });
     }
     const streaks = await streakService.getStreaks(userId);
-    console.log('Streaks retrieved:', streaks);
     res.status(200).json(streaks);
   } catch (error) {
-    console.error('Error in getStreaks:', error);
-    res.status(400).json({ error: (error as Error).message });
+    next(error);
   }
 };
 
-export const createStreak = async (req: Request, res: Response) => {
+export const createStreak = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = getUserId(req);
     if (userId === null) {
@@ -33,11 +29,11 @@ export const createStreak = async (req: Request, res: Response) => {
     const streak = await streakService.createStreak(userId, name);
     res.status(201).json(streak);
   } catch (error) {
-    res.status(400).json({ error: (error as Error).message });
+    next(error);
   }
 };
 
-export const increaseStreakCount = async (req: Request, res: Response) => {
+export const increaseStreakCount = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = getUserId(req);
     if (userId === null) {
@@ -47,11 +43,11 @@ export const increaseStreakCount = async (req: Request, res: Response) => {
     const streak = await streakService.increaseStreakCount(userId, streakId);
     res.status(200).json(streak);
   } catch (error) {
-    res.status(400).json({ error: (error as Error).message });
+    next(error);
   }
 };
 
-export const deleteStreak = async (req: Request, res: Response) => {
+export const deleteStreak = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = getUserId(req);
     if (userId === null) {
@@ -61,11 +57,11 @@ export const deleteStreak = async (req: Request, res: Response) => {
     await streakService.deleteStreak(id, userId);
     res.status(204).end();
   } catch (error) {
-    res.status(400).json({ error: (error as Error).message });
+    next(error);
   }
 };
 
-export const resetStreak = async (req: Request, res: Response) => {
+export const resetStreak = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = getUserId(req);
     if (userId === null) {
@@ -75,6 +71,6 @@ export const resetStreak = async (req: Request, res: Response) => {
     const streak = await streakService.resetStreak(userId, streakId);
     res.status(200).json(streak);
   } catch (error) {
-    res.status(400).json({ error: (error as Error).message });
+    next(error);
   }
 };

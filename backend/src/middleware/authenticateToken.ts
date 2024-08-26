@@ -2,11 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 interface JwtPayload {
-  id: number;
+  id: string;
   // Add any other properties that are in your JWT payload
 }
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export function authenticateToken(req: Request, res: Response, next: NextFunction) {
   console.log('Entered authMiddleware');
 
   // List of routes that don't require authentication
@@ -53,4 +53,4 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     }
     return res.status(500).json({ error: 'Internal server error.' });
   }
-};
+}

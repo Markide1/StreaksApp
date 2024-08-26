@@ -8,11 +8,26 @@ export const getStreaks = async (userId: string) => {
 };
 
 export const createStreak = async (userId: string, name: string) => {
-  return prisma.streak.create({ data: { 
-    id:uuidv4(),
-    userId, 
-    name 
-  } });
+  const existingStreak = await prisma.streak.findFirst({
+    where: { 
+      userId, 
+      name: { 
+        contains: name.toLowerCase()
+      } 
+    }
+  });
+
+  if (existingStreak) {
+    throw new Error("The streak already exists, create another one");
+  }
+
+  return prisma.streak.create({ 
+    data: { 
+      id: uuidv4(),
+      userId, 
+      name 
+    } 
+  });
 };
 
 export const increaseStreakCount = async (userId: string, streakId: string) => {
