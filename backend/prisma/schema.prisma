@@ -24,10 +24,11 @@ model User {
 }
 
 model Streak {
-  id        String      @id @default(uuid())
+  id        String   @id @default(uuid())
   userId    String
   name      String
   count     Int      @default(0)
   lastReset DateTime @default(now())
+  lastUpdated DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
 }

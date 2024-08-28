@@ -8,5 +8,6 @@ router.post('/', streakController.createStreak);
 router.put('/:id', streakController.increaseStreakCount);
 router.delete('/:id', streakController.deleteStreak);
 router.put('/:id/reset', streakController.resetStreak);
+router.get('/stats', streakController.getStreakStats);
 
 export default router;

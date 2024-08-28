@@ -19,6 +19,7 @@ export async function login(email: string, password: string): Promise<void> {
   const data = await response.json();
   if (data.token) {
     localStorage.setItem('token', data.token);
+    localStorage.setItem('username', data.username); // Store the username
   } else {
     throw new Error('No token received');
   }
@@ -215,9 +216,13 @@ export async function resetPassword(resetCode: string, newPassword: string): Pro
   }
 }
 
-export function logout(): void {
+export async function logout(): Promise<void> {
+  // Perform any necessary logout operations on the server
+  // ...
+
+  // Clear local storage
   localStorage.removeItem('token');
-  localStorage.removeItem('userId');
+  localStorage.removeItem('username');
 }
 
 export async function updateUserProfile(username: string | null, email: string | null, password: string | null): Promise<boolean | 'verification_required'> {
@@ -332,4 +337,27 @@ export async function uploadProfilePhoto(photo: File): Promise<void> {
     }
 
     console.log('Profile photo uploaded successfully');
+}
+
+export async function getStreakStats(): Promise<{ longestStreak: number, currentStreak: number }> {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No token found');
+    }
+
+    const response = await fetch(`${API_URL}/api/streaks/stats`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Get streak stats error:', error);
+    throw error;
+  }
 }

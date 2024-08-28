@@ -3,6 +3,8 @@ import { debounce } from '../utils';
 import { handleError } from '../utils/errorHandler';
 
 let streaksData: any[] = [];
+let longestStreak = 0;
+let currentStreak = 0;
 
 const debouncedRenderStreak = debounce(async (container: HTMLElement) => {
     if (!container) {
@@ -15,12 +17,24 @@ const debouncedRenderStreak = debounce(async (container: HTMLElement) => {
         streaksData = await getStreaks();
         console.log('Streaks data received:', streaksData);
 
+        updateStreakSummary();
         renderStreaksList(container);
     } catch (error) {
         console.error('Render streak error:', error);
         container.innerHTML = `<p>Failed to load streak data. Error: ${error instanceof Error ? error.message : 'Unknown error'}</p>`;
     }
 }, 300);
+
+function updateStreakSummary() {
+    longestStreak = Math.max(...streaksData.map(streak => streak.count));
+    currentStreak = streaksData.reduce((sum, streak) => sum + streak.count, 0);
+
+    const longestStreakElement = document.getElementById('longest-streak');
+    const currentStreakElement = document.getElementById('current-streak');
+
+    if (longestStreakElement) longestStreakElement.textContent = `Longest Streak: ${longestStreak} days`;
+    if (currentStreakElement) currentStreakElement.textContent = `Current Streak: ${currentStreak} days`;
+}
 
 function renderStreaksList(container: HTMLElement) {
     const streaksList = document.getElementById('streaks-list');

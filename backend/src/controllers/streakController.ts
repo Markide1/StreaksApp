@@ -67,9 +67,27 @@ export const resetStreak = async (req: Request, res: Response, next: NextFunctio
     if (userId === null) {
       return res.status(401).json({ error: "Unauthorized" });
     }
-    const streakId = req.params.streakId;
+    const streakId = req.params.id;   
+    if (!streakId) {
+      return res.status(400).json({ error: "Missing streakId parameter" });
+    }
+    console.log(`Resetting streak. UserId: ${userId}, StreakId: ${streakId}`);
     const streak = await streakService.resetStreak(userId, streakId);
     res.status(200).json(streak);
+  } catch (error) {
+    console.error(`Error in resetStreak controller:`, error);
+    next(error);
+  }
+};
+
+export const getStreakStats = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = getUserId(req);
+    if (userId === null) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const stats = await streakService.getStreakStats(userId);
+    res.status(200).json(stats);
   } catch (error) {
     next(error);
   }

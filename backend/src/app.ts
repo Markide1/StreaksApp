@@ -10,6 +10,8 @@ import cors from 'cors';
 import { errorHandler } from './middleware/errorHandler';
 import logger from './utils/logger';
 import path from 'path'; 
+import streakRoutes from './routes/streakRoutes';
+
 dotenv.config();
 
 logger.info('Email configuration:', {
@@ -55,7 +57,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/auth', resetPasswordRoutes);
 
 // Protected routes
-app.use('/api/streaks', authenticateToken);
+
+
+app.use('/api/streaks', authenticateToken, streakRoutes);
 app.get('/api/streaks', streakController.getStreaks);
 app.post('/api/streaks', streakController.createStreak);
 app.put('/api/streaks/:streakId/increase', streakController.increaseStreakCount);

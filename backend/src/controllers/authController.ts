@@ -17,11 +17,8 @@ export const signup = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-    const token = await authService.login(email, password);
-    if (!token) {
-      throw new Error('No token received');
-    }
-    res.json({ token });
+    const result = await authService.login(email, password);
+    res.json(result);
   } catch (error) {
     res.status(401).json({ error: (error as Error).message });
   }
