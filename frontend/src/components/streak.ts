@@ -123,5 +123,5 @@ export interface Streak {
     createdAt: string;
     lastUpdated: string;
     lastReset: string;
-    deletedAt?: string | null;
+    deletedAt?: string;
 }

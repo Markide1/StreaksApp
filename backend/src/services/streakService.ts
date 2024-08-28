@@ -25,7 +25,9 @@ export const createStreak = async (userId: string, name: string) => {
     data: { 
       id: uuidv4(),
       userId, 
-      name 
+      name,
+      createdAt: new Date(),  
+      lastUpdated: new Date()  
     } 
   });
 };
@@ -71,7 +73,7 @@ export const increaseStreakCount = async (userId: string, streakId: string) => {
 };
 
 export const deleteStreak = async (id: string, userId: string) => {
-    const streak = await prisma.streak.findUnique({
+  const streak = await prisma.streak.findUnique({
     where: { id },
   });
 
@@ -79,8 +81,9 @@ export const deleteStreak = async (id: string, userId: string) => {
     throw new Error("Streak does not belong to the user");
   }
 
-  return prisma.streak.delete({
+  return prisma.streak.update({
     where: { id },
+    data: { deletedAt: new Date() }
   });
 };
 

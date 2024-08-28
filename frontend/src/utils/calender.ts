@@ -99,10 +99,24 @@ function getStreakDataForDate(streaks: Streak[], date: Date): string | null {
     };
 
     streaks.forEach(streak => {
-        if (isSameDay(new Date(streak.createdAt), date)) events.Created.push(streak.name);
-        if (isSameDay(new Date(streak.lastUpdated), date)) events.Updated.push(streak.name);
-        if (streak.lastReset && isSameDay(new Date(streak.lastReset), date)) events.Reset.push(streak.name);
-        if (streak.deletedAt && isSameDay(new Date(streak.deletedAt), date)) events.Deleted.push(streak.name);
+        console.log('Streak data:', JSON.stringify(streak, null, 2));
+        
+        if (streak.createdAt && isSameDay(new Date(streak.createdAt), date)) {
+            console.log('Created event found:', streak.name);
+            events.Created.push(streak.name);
+        }
+        if (isSameDay(new Date(streak.lastUpdated), date)) {
+            console.log('Updated event found:', streak.name);
+            events.Updated.push(streak.name);
+        }
+        if (streak.lastReset && isSameDay(new Date(streak.lastReset), date)) {
+            console.log('Reset event found:', streak.name);
+            events.Reset.push(streak.name);
+        }
+        if (streak.deletedAt && isSameDay(new Date(streak.deletedAt), date)) {
+            console.log('Deleted event found:', streak.name);
+            events.Deleted.push(streak.name);
+        }
     });
     
     const eventsList = Object.entries(events)

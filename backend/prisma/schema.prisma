@@ -30,5 +30,7 @@ model Streak {
   count     Int      @default(0)
   lastReset DateTime @default(now())
   lastUpdated DateTime @default(now())
+  createdAt   DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
+  deletedAt DateTime?
 }
