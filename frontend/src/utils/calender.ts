@@ -13,6 +13,7 @@ export function renderCalendar(container: HTMLElement, streaks: Streak[]) {
                 <button id="next-month">&gt;</button>
             </div>
             <div class="calendar-body" id="calendar-body"></div>
+            <div id="streak-info"></div>
         </div>
     `;
 
@@ -48,9 +49,7 @@ export function renderCalendar(container: HTMLElement, streaks: Streak[]) {
             const date = new Date(year, month, day);
             const streakData = getStreakDataForDate(streaks, date);
             const cellClass = streakData ? 'has-streak' : '';
-            const cellContent = streakData ? `<div class="streak-dot" title="${streakData}"></div>` : '';
-
-            html += `<td class="${cellClass}">${day}${cellContent}</td>`;
+            html += `<td class="${cellClass}" data-date="${date.toISOString()}">${day}</td>`;
 
             if ((firstDay + day) % 7 === 0) {
                 html += '</tr><tr>';
@@ -59,6 +58,27 @@ export function renderCalendar(container: HTMLElement, streaks: Streak[]) {
 
         html += '</tr></table>';
         calendarBody.innerHTML = html;
+
+        // Add click event listeners to cells
+        const cells = calendarBody.querySelectorAll('td');
+        cells.forEach(cell => {
+            cell.addEventListener('click', (e) => {
+                const clickedDate = new Date((e.target as HTMLElement).getAttribute('data-date') || '');
+                const streakInfo = getStreakDataForDate(streaks, clickedDate);
+                displayStreakInfo(streakInfo);
+            });
+        });
+    }
+
+    function displayStreakInfo(streakInfo: string | null) {
+        const streakInfoElement = document.getElementById('streak-info');
+        if (streakInfoElement) {
+            if (streakInfo) {
+                streakInfoElement.innerHTML = `<h4>Streak Information</h4><p>${streakInfo}</p>`;
+            } else {
+                streakInfoElement.innerHTML = '';
+            }
+        }
     }
 
     renderCalendarBody(currentMonth, currentYear);
@@ -72,9 +92,9 @@ function getMonthName(month: number): string {
 function getStreakDataForDate(streaks: Streak[], date: Date): string | null {
     const events: string[] = [];
     streaks.forEach(streak => {
-        if (isSameDay(new Date(streak.createdAt), date)) events.push('Created');
-        if (isSameDay(new Date(streak.lastUpdated), date)) events.push('Updated');
-        if (streak.lastReset && isSameDay(new Date(streak.lastReset), date)) events.push('Reset');
+        if (isSameDay(new Date(streak.createdAt), date)) events.push(`Created: ${streak.name}`);
+        if (isSameDay(new Date(streak.lastUpdated), date)) events.push(`Updated: ${streak.name}`);
+        if (streak.lastReset && isSameDay(new Date(streak.lastReset), date)) events.push(`Reset: ${streak.name}`);
     });
     return events.length > 0 ? events.join(', ') : null;
 }

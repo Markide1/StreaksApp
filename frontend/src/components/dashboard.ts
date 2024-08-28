@@ -3,7 +3,7 @@ import { navigate } from '../main';
 import { renderStreak } from './streak';
 import { getStreakStats } from '../api';
 import { API_URL } from '../config/config';
-import { renderStats } from './stats';
+import { renderStats } from '../utils/stats';
 
 export async function renderDashboard(container: HTMLElement | null) {
     if (!container) {

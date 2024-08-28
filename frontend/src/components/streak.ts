@@ -117,6 +117,7 @@ export async function renderStreak(container: HTMLElement | null) {
 }
 
 export interface Streak {
+    name: string;
     createdAt: string;
     lastUpdated: string;
     lastReset?: string;
