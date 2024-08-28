@@ -115,3 +115,10 @@ export async function renderStreak(container: HTMLElement | null) {
 
     debouncedRenderStreak(container);
 }
+
+export interface Streak {
+    createdAt: string;
+    lastUpdated: string;
+    lastReset?: string;
+    // ... other properties ...
+}

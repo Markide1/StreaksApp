@@ -1,4 +1,4 @@
-import { Streak } from './streak';
+import { Streak } from '../components/streak';
 
 export function renderCalendar(container: HTMLElement, streaks: Streak[]) {
     const today = new Date();

@@ -35,11 +35,6 @@ export async function renderDashboard(container: HTMLElement | null) {
                 </div>
                 <div class="dashboard-content">
                     <div class="main-content">
-                        <div id="streak-summary">
-                            <h2>Streak Summary</h2>
-                            <p id="longest-streak">Longest Streak: ${longestStreak} days</p>
-                            <p id="current-streak">Current Streak: ${currentStreak} days</p>
-                        </div>
                         <div id="streak-container">
                             <h2>Your Streaks</h2>
                             <div id="streaks-list"></div>
@@ -79,12 +74,7 @@ export async function renderDashboard(container: HTMLElement | null) {
 
         const statsButton = container.querySelector('#stats-button');
         statsButton?.addEventListener('click', () => {
-            const mainContent = container.querySelector('.main-content');
-            if (mainContent instanceof HTMLElement) {
-                renderStats(mainContent);
-            } else {
-                console.error('Main content element not found or is not an HTMLElement');
-            }
+            renderStats(container);
         });
 
         const settingsButton = container.querySelector('#settings-button');
