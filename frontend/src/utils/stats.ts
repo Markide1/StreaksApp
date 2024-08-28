@@ -1,11 +1,13 @@
 import { renderDashboard } from '../components/dashboard';
 import { renderLineGraph } from './lineGraph';
 import { getStreakStats } from '../api';
+import { getStreaks } from '../api';
 import { renderCalendar } from '/home/m_/StreaksApp/frontend/src/utils/calender';
 
 export async function renderStats(container: HTMLElement) {
     try {
         const { longestStreak, currentStreak } = await getStreakStats();
+        const streaks = await getStreaks();
 
         container.innerHTML = `
             <div class="stats-container">
@@ -23,12 +25,12 @@ export async function renderStats(container: HTMLElement) {
 
         const calendarContainer = document.getElementById('calendar-container');
         if (calendarContainer) {
-            renderCalendar(calendarContainer, []); // Pass an empty array for now
+            renderCalendar(calendarContainer, streaks);
         }
 
         const lineGraphContainer = document.getElementById('line-graph-container');
         if (lineGraphContainer) {
-            renderLineGraph(lineGraphContainer, []); // Pass an empty array for now
+            renderLineGraph(lineGraphContainer, streaks);
         }
     } catch (error) {
         console.error('Error rendering stats:', error);

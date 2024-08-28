@@ -48,7 +48,8 @@ export function renderCalendar(container: HTMLElement, streaks: Streak[]) {
         for (let day = 1; day <= daysInMonth; day++) {
             const date = new Date(year, month, day);
             const streakData = getStreakDataForDate(streaks, date);
-            const cellClass = streakData ? 'has-streak' : '';
+            const isToday = isSameDay(date, today);
+            const cellClass = `${streakData ? 'has-streak' : ''} ${isToday ? 'today' : ''}`;
             html += `<td class="${cellClass}" data-date="${date.toISOString()}">${day}</td>`;
 
             if ((firstDay + day) % 7 === 0) {
@@ -90,13 +91,38 @@ function getMonthName(month: number): string {
 }
 
 function getStreakDataForDate(streaks: Streak[], date: Date): string | null {
-    const events: string[] = [];
+    const events: { [key: string]: string[] } = {
+        Created: [],
+        Updated: [],
+        Reset: [],
+        Deleted: []
+    };
+
     streaks.forEach(streak => {
-        if (isSameDay(new Date(streak.createdAt), date)) events.push(`Created: ${streak.name}`);
-        if (isSameDay(new Date(streak.lastUpdated), date)) events.push(`Updated: ${streak.name}`);
-        if (streak.lastReset && isSameDay(new Date(streak.lastReset), date)) events.push(`Reset: ${streak.name}`);
+        if (isSameDay(new Date(streak.createdAt), date)) events.Created.push(streak.name);
+        if (isSameDay(new Date(streak.lastUpdated), date)) events.Updated.push(streak.name);
+        if (streak.lastReset && isSameDay(new Date(streak.lastReset), date)) events.Reset.push(streak.name);
+        if (streak.deletedAt && isSameDay(new Date(streak.deletedAt), date)) events.Deleted.push(streak.name);
     });
-    return events.length > 0 ? events.join(', ') : null;
+    
+    const eventsList = Object.entries(events)
+        .filter(([_, streaks]) => streaks.length > 0)
+        .map(([category, streaks]) => `
+            <li>
+                <details>
+                    <summary>${category}</summary>
+                    <ol>
+                        ${streaks.map(streak => `<li>${streak}</li>`).join('')}
+                    </ol>
+                </details>
+            </li>
+        `)
+        .join('');
+
+    if (eventsList) {
+        return `<ul class="streak-events">${eventsList}</ul>`;
+    }
+    return null;
 }
 
 function isSameDay(date1: Date, date2: Date): boolean {

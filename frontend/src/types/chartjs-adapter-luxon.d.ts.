@@ -1,0 +1,5 @@
+declare module 'chartjs-adapter-luxon' {
+  import { _adapters } from 'chart.js';
+  const DateTimeAdapter: typeof _adapters._date;
+  export { DateTimeAdapter };
+}

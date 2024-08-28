@@ -511,3 +511,36 @@ input:focus {
     margin-bottom: 0;
     color: #666;
 }
+
+.calendar td.today {
+    background-color: #e6f3ff;
+    font-weight: bold;
+}
+
+.streak-events {
+    list-style-type: none;
+    padding: 0;
+}
+
+.streak-events > li {
+    margin-bottom: 10px;
+}
+
+.streak-events summary {
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.streak-events summary:hover {
+    color: #4a90e2;
+}
+
+.streak-events ol {
+    margin-top: 5px;
+    margin-left: 20px;
+}
+
+.streak-events ol li {
+    margin-bottom: 3px;
+}
