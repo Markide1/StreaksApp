@@ -316,9 +316,7 @@ export async function uploadProfilePhoto(photo: File): Promise<void> {
     }
 
     const formData = new FormData();
-    formData.append('photo', photo, photo.name);
-
-    console.log('FormData contents:', formData);
+    formData.append('photo', photo);
 
     console.log('Sending photo upload request');
     const response = await fetch(`${API_URL}/api/users/profile/photo`, {
@@ -336,7 +334,13 @@ export async function uploadProfilePhoto(photo: File): Promise<void> {
         throw new Error(errorData.message || `Failed to upload profile photo: ${response.statusText}`);
     }
 
-    console.log('Profile photo uploaded successfully');
+    const responseData = await response.json();
+    console.log('Profile photo uploaded successfully', responseData);
+    
+    // Store the new avatar URL in localStorage
+    if (responseData.photoUrl) {
+        localStorage.setItem('avatarUrl', responseData.photoUrl);
+    }
 }
 
 export async function getStreakStats(): Promise<{ longestStreak: number, currentStreak: number }> {

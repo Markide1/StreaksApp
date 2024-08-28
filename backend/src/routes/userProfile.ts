@@ -148,12 +148,14 @@ router.post('/profile/photo', authenticateToken, upload.single('photo'), async (
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
+        const photoUrl = `uploads/${req.file.filename}`;
+
         const user = await prisma.user.update({
             where: { id: userId },
-            data: { profilePhotoUrl: req.file.path }
+            data: { profilePhotoUrl: photoUrl }
         });
 
-        res.status(200).json({ message: 'Profile photo uploaded successfully', photoUrl: req.file.path });
+        res.status(200).json({ message: 'Profile photo uploaded successfully', photoUrl: photoUrl });
     } catch (error: any) {
         console.error('Upload profile photo error:', error);
         res.status(500).json({ message: 'Internal server error', error: error.message });
