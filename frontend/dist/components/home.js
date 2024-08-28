@@ -4,7 +4,8 @@ export function renderHome(container) {
     container.innerHTML = `
         <div class="home-container">
             <h1>Welcome to StreaksApp</h1>
-            <h3>Here you can track your daily habits <br> and build streaks to stay motivated!</h3>
+            <h3>Track your daily habits and build streaks to stay motivated!</h3>
+            <p>StreaksApp helps you achieve your goals by making it easy to track your progress and stay accountable. Whether you want to exercise more, eat healthier, or learn a new skill, StreaksApp can help you stay on track.</p>
             <p>Please login or sign up to continue.</p>
             <button id="login-btn">Login</button>
             <button id="signup-btn">Sign Up</button>

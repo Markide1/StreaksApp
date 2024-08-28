@@ -16,8 +16,10 @@ export function renderSignup(container) {
         <h2>Sign Up</h2>
         <form id="signup-form">
             <input type="email" id="email" placeholder="Email" required>
+            <input type="username" id="username" placeholder="Username" required>
             <input type="password" id="password" placeholder="Password" required>
             <button type="submit">Sign Up</button>
+            <button id="back-btn">Back</button>
         </form>
         <p id="message"></p>
         <p>Already have an account? <a href="#" id="login-link">Login</a></p>
@@ -25,12 +27,14 @@ export function renderSignup(container) {
     const form = document.getElementById('signup-form');
     const loginLink = document.getElementById('login-link');
     const messageElement = document.getElementById('message');
+    const backBtn = document.getElementById('back-btn');
     form.addEventListener('submit', (e) => __awaiter(this, void 0, void 0, function* () {
         e.preventDefault();
         const email = document.getElementById('email').value;
+        const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         try {
-            const result = yield signup(email, password);
+            const result = yield signup(email, username, password);
             if (result.success) {
                 if (messageElement) {
                     messageElement.textContent = 'Signup successful! Redirecting to login...';
@@ -61,6 +65,9 @@ export function renderSignup(container) {
     loginLink === null || loginLink === void 0 ? void 0 : loginLink.addEventListener('click', (e) => {
         e.preventDefault();
         navigate('login');
+    });
+    backBtn.addEventListener('click', () => {
+        navigate('home');
     });
 }
 //# sourceMappingURL=signup.js.map

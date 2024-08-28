@@ -9,7 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { getStreaks, updateStreakCount, resetStreak, createStreak, deleteStreak } from '../api';
 import { debounce } from '../utils';
+import { handleError } from '../utils/errorHandler';
 let streaksData = [];
+let longestStreak = 0;
+let currentStreak = 0;
 const debouncedRenderStreak = debounce((container) => __awaiter(void 0, void 0, void 0, function* () {
     if (!container) {
         console.error('Streak container not found');
@@ -19,6 +22,7 @@ const debouncedRenderStreak = debounce((container) => __awaiter(void 0, void 0, 
         console.log('Rendering streaks...');
         streaksData = yield getStreaks();
         console.log('Streaks data received:', streaksData);
+        updateStreakSummary();
         renderStreaksList(container);
     }
     catch (error) {
@@ -26,6 +30,16 @@ const debouncedRenderStreak = debounce((container) => __awaiter(void 0, void 0, 
         container.innerHTML = `<p>Failed to load streak data. Error: ${error instanceof Error ? error.message : 'Unknown error'}</p>`;
     }
 }), 300);
+function updateStreakSummary() {
+    longestStreak = Math.max(...streaksData.map(streak => streak.count));
+    currentStreak = streaksData.reduce((sum, streak) => sum + streak.count, 0);
+    const longestStreakElement = document.getElementById('longest-streak');
+    const currentStreakElement = document.getElementById('current-streak');
+    if (longestStreakElement)
+        longestStreakElement.textContent = `Longest Streak: ${longestStreak} days`;
+    if (currentStreakElement)
+        currentStreakElement.textContent = `Current Streak: ${currentStreak} days`;
+}
 function renderStreaksList(container) {
     const streaksList = document.getElementById('streaks-list');
     if (streaksList && Array.isArray(streaksData)) {
@@ -37,9 +51,9 @@ function renderStreaksList(container) {
                     <h3>${streak.name}</h3>
                     <p>Current streak: ${streak.count} days</p>
                     <p>Last reset: ${new Date(streak.lastReset).toLocaleDateString()}</p>
-                    <button class="update-streak" data-id="${streak.id}">Increment Streak</button>
-                    <button class="reset-streak" data-id="${streak.id}">Reset Streak</button>
-                    <button class="delete-streak" data-id="${streak.id}">Delete Streak</button>
+                    <button class="update-streak" data-id="${streak.id}">Update</button>
+                    <button class="reset-streak" data-id="${streak.id}">Reset</button>
+                    <button class="delete-streak" data-id="${streak.id}">Delete</button>
                 `;
                 streaksList.appendChild(streakElement);
             }
@@ -59,12 +73,11 @@ export function renderStreak(container) {
             return;
         }
         container.innerHTML = `
-        <h2>Your Streaks</h2>
         <div id="streaks-list"></div>
         <h3>Create New Streak</h3>
         <form id="create-streak-form">
             <input type="text" id="streak-name" placeholder="Streak Name" required>
-            <button type="submit">Create Streak</button>
+            <button type="submit">Create</button>
         </form>
     `;
         const createStreakForm = document.getElementById('create-streak-form');
@@ -76,8 +89,8 @@ export function renderStreak(container) {
                 debouncedRenderStreak(container);
             }
             catch (error) {
-                console.error('Create streak error:', error);
-                alert('Failed to create streak');
+                const errorMessage = handleError(error);
+                alert(`Failed to create streak: ${errorMessage}`);
             }
         }));
         container.addEventListener('click', (e) => __awaiter(this, void 0, void 0, function* () {

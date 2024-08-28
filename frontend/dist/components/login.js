@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { login } from '../api';
 import { navigate } from '../main';
+import { handleError } from '../utils/errorHandler';
 export function renderLogin(container) {
     if (!container)
         return;
@@ -18,6 +19,7 @@ export function renderLogin(container) {
             <input type="email" id="email" placeholder="Email" required>
             <input type="password" id="password" placeholder="Password" required>
             <button type="submit">Login</button>
+            <button id="back-btn">Back</button>
         </form>
         <p>Don't have an account? <a href="#" id="signup-link">Sign up</a></p>
         <p>Forgot your password? <a href="#" id="reset-password-link">Reset password</a></p>
@@ -25,37 +27,30 @@ export function renderLogin(container) {
     const form = document.getElementById('login-form');
     const signupLink = document.getElementById('signup-link');
     const resetPasswordLink = document.getElementById('reset-password-link');
+    const backBtn = document.getElementById('back-btn');
     form.addEventListener('submit', (e) => __awaiter(this, void 0, void 0, function* () {
         e.preventDefault();
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         try {
-            const result = yield login(email, password);
-            if (result && result.token) {
-                localStorage.setItem('token', result.token);
-                navigate('dashboard');
-            }
-            else {
-                alert('Login failed. Please check your credentials and try again.');
-            }
+            yield login(email, password);
+            navigate('dashboard');
         }
         catch (error) {
-            console.error('Login error:', error);
-            if (error instanceof Error) {
-                alert(`Login failed: ${error.message}`);
-            }
-            else {
-                alert('An unexpected error occurred. Please try again.');
-            }
+            const errorMessage = handleError(error);
+            alert(`Login failed: ${errorMessage}`);
         }
     }));
-    signupLink === null || signupLink === void 0 ? void 0 : signupLink.addEventListener('click', (e) => {
+    signupLink.addEventListener('click', (e) => {
         e.preventDefault();
         navigate('signup');
     });
-    resetPasswordLink === null || resetPasswordLink === void 0 ? void 0 : resetPasswordLink.addEventListener('click', (e) => {
+    resetPasswordLink.addEventListener('click', (e) => {
         e.preventDefault();
         navigate('passwordReset');
+    });
+    backBtn.addEventListener('click', () => {
+        navigate('home');
     });
 }
 //# sourceMappingURL=login.js.map

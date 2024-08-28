@@ -145,3 +145,6 @@ rest_client.http
 Prisma
 schema.Prisma
 
+## Uploads
+uploads
+
