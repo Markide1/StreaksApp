@@ -10,6 +10,7 @@ export const signup = async (req: Request, res: Response) => {
     const user = await authService.signup(email, password, username);
     res.status(201).json(user);
   } catch (error) {
+    console.error('Signup error:', error);
     res.status(400).json({ error: (error as Error).message });
   }
 };

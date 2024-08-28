@@ -3,6 +3,7 @@ import { navigate } from '../main';
 import { renderStreak } from './streak';
 import { getStreakStats } from '../api';
 import { API_URL } from '../config/config';
+import { renderStats } from './stats';
 
 export async function renderDashboard(container: HTMLElement | null) {
     if (!container) {
@@ -26,6 +27,7 @@ export async function renderDashboard(container: HTMLElement | null) {
                             <span class="arrow-down"></span>
                         </button>
                         <div class="profile-dropdown-content">
+                            <button id="stats-button">Stats</button>
                             <button id="settings-button">Settings</button>
                             <button id="logout-button">Logout</button>
                         </div>
@@ -73,6 +75,16 @@ export async function renderDashboard(container: HTMLElement | null) {
 
         profileDropdownButton?.addEventListener('click', () => {
             profileDropdownContent?.classList.toggle('show');
+        });
+
+        const statsButton = container.querySelector('#stats-button');
+        statsButton?.addEventListener('click', () => {
+            const mainContent = container.querySelector('.main-content');
+            if (mainContent instanceof HTMLElement) {
+                renderStats(mainContent);
+            } else {
+                console.error('Main content element not found or is not an HTMLElement');
+            }
         });
 
         const settingsButton = container.querySelector('#settings-button');

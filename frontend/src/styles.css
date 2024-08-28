@@ -440,3 +440,50 @@ input:focus {
 .show {
     display: block;
 }
+
+.stats-container {
+    background-color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 2rem;
+}
+
+.calendar {
+    margin-top: 2rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.calendar-body table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.calendar-body th, .calendar-body td {
+    text-align: center;
+    padding: 0.5rem;
+    border: 1px solid #e0e0e0;
+}
+
+.calendar-body td.has-streak {
+    background-color: #e6f7ff;
+}
+
+.streak-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #4a90e2;
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+#streak-graph {
+    margin-top: 2rem;
+    height: 300px;
+}

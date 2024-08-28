@@ -15,6 +15,7 @@ CREATE TABLE [dbo].[User] (
     [profilePhotoUrl] NVARCHAR(1000),
     [emailVerificationCode] NVARCHAR(1000),
     [newEmail] NVARCHAR(1000),
+    [isEmailVerified] BIT NOT NULL CONSTRAINT [User_isEmailVerified_df] DEFAULT 0,
     CONSTRAINT [User_pkey] PRIMARY KEY CLUSTERED ([id]),
     CONSTRAINT [User_email_key] UNIQUE NONCLUSTERED ([email])
 );
@@ -26,6 +27,7 @@ CREATE TABLE [dbo].[Streak] (
     [name] NVARCHAR(1000) NOT NULL,
     [count] INT NOT NULL CONSTRAINT [Streak_count_df] DEFAULT 0,
     [lastReset] DATETIME2 NOT NULL CONSTRAINT [Streak_lastReset_df] DEFAULT CURRENT_TIMESTAMP,
+    [lastUpdated] DATETIME2 NOT NULL CONSTRAINT [Streak_lastUpdated_df] DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT [Streak_pkey] PRIMARY KEY CLUSTERED ([id])
 );
 
