@@ -22,6 +22,8 @@ export const signup = async (email: string, password: string, username: string) 
         email,
         password: hashedPassword,
         username,
+        createdAt: new Date(),  
+        updatedAt: new Date(),  
       },
     });
     const templatePath = path.join(__dirname, '../mails/Welcomemail.ejs');

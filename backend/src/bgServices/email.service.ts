@@ -1,6 +1,7 @@
 import nodemailer, { Transporter } from 'nodemailer';
 import ejs from 'ejs';
 import path from 'path';
+import { emailConfig } from '../config/email';
 
 interface EmailOptions {
   email: string;
@@ -18,18 +19,16 @@ const sendMail = async (options: EmailOptions): Promise<void> => {
   try {
     console.log('Creating transport...');
     const transporter: Transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT || '587'),
-      secure: true, // true for port 465, false for other ports
+      host: emailConfig.host,
+      port: emailConfig.port,
+      secure: emailConfig.secure, // Use the secure setting from your config
       auth: {
-        user: process.env.EMAIL_NAME,
-        pass: process.env.EMAIL_PASSWORD,
+        user: emailConfig.auth.user,
+        pass: emailConfig.auth.pass,
       },
       tls: {
-        rejectUnauthorized: false,
+        rejectUnauthorized: false, // This can help with self-signed certificates
       },
-      socketTimeout: 30000, // 30 seconds
-      connectionTimeout: 30000, // 30 seconds
     });
 
     console.log('Transport created successfully');
