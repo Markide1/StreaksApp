@@ -142,7 +142,7 @@ rest client
 rest_client.http
 
 ## Prisma 
-Prisma
+prisma
 schema.prisma
 
 ## Uploads
