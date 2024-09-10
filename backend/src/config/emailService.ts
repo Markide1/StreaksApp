@@ -1,16 +1,30 @@
 import nodemailer from 'nodemailer';
+import { emailConfig } from '../config/email';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
+const transporter = nodemailer.createTransport({
+  host: emailConfig.host,
+  port: emailConfig.port,
+  secure: emailConfig.secure, // Use the secure setting from your config
+  auth: {
+    user: emailConfig.auth.user,
+    pass: emailConfig.auth.pass,
+  },
+});
 
 class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
     this.transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT || '587'),
-      secure: process.env.EMAIL_SECURE === 'true',
+      host: emailConfig.host,
+      port: emailConfig.port,
+      secure: emailConfig.secure, // Use the secure setting from your config
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: emailConfig.auth.user,
+        pass: emailConfig.auth.pass,
       },
     });
   }
@@ -114,6 +128,23 @@ class EmailService {
       </body>
       </html>
     `;
+  }
+
+  async sendPasswordResetEmail(toEmail: string, resetCode: string): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: `"Habit Tracker" <${process.env.EMAIL_USER}>`,
+        to: toEmail,
+        subject: 'Password Reset Code',
+        html: `<h1>Password Reset Code</h1><p>Your password reset code is: <strong>${resetCode}</strong></p>`
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Error sending password reset email: ', error);
+      return false;
+    }
   }
 }
 
