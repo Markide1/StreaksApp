@@ -7,66 +7,80 @@ const router = express.Router();
 const prisma = new PrismaClient();
 const emailService = new EmailService();
 
-function generateCode() {
-    return Math.floor(1000 + Math.random() * 9000).toString();
+function generateCode(): string {
+  const digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  let code = '';
+  
+  for (let i = 0; i < 6; i++) {
+    const randomIndex = Math.floor(Math.random() * digits.length);
+    code += digits[randomIndex];
+    digits.splice(randomIndex, 1);
+  }
+  
+  return code;
 }
 
 router.post('/reset-password', async (req: Request, res: Response) => {
-    const { email } = req.body;
+  const { email } = req.body;
 
-    if (!email) {
-        return res.status(400).json({ message: 'Email is required' });
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const resetCode = generateCode();
+  const resetCodeExpiry = new Date(Date.now() + 3600000); // Code expires in 1 hour
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      resetPasswordToken: resetCode,
+      resetPasswordTokenExpiry: resetCodeExpiry
     }
+  });
 
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-    }
+  const emailSent = await emailService.sendPasswordResetEmail(user.email, resetCode);
 
-    const resetCode = generateCode();
-    const resetCodeExpiry = new Date(Date.now() + 3600000); // Code expires in 1 hour
-
-    await prisma.user.update({
-        where: { id: user.id },
-        data: {
-            resetPasswordToken: resetCode,
-            resetPasswordTokenExpiry: resetCodeExpiry
-        }
-    });
-
-    const emailSent = await emailService.sendPasswordResetEmail(user.email, resetCode);
-    if (emailSent) {
-        res.status(200).json({ message: 'Password reset code sent' });
-    } else {
-        res.status(500).json({ message: 'Failed to send password reset email' });
-    }
+  if (emailSent) {
+    res.status(200).json({ message: 'Password reset code sent' });
+  } else {
+    res.status(500).json({ message: 'Failed to send password reset email' });
+  }
 });
 
 router.post('/reset-password/:code', async (req: Request, res: Response) => {
-    const { password } = req.body;
-    const user = await prisma.user.findFirst({
-        where: {
-            resetPasswordToken: req.params.code,
-            resetPasswordTokenExpiry: { gt: new Date() }
-        }
-    });
+  const { password } = req.body;
 
-    if (!user) {
-        return res.status(400).json({ message: 'Password reset code is invalid or has expired' });
+  const user = await prisma.user.findFirst({
+    where: {
+      resetPasswordToken: req.params.code,
+      resetPasswordTokenExpiry: { gt: new Date() }
     }
+  });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await prisma.user.update({
-        where: { id: user.id },
-        data: {
-            password: hashedPassword,
-            resetPasswordToken: null,
-            resetPasswordTokenExpiry: null
-        }
-    });
+  if (!user) {
+    return res.status(400).json({ message: 'Password reset code is invalid or has expired' });
+  }
 
-    await emailService.sendPasswordChangedEmail(user.email);
-    res.status(200).json({ message: 'Password has been updated' });
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      password: hashedPassword,
+      resetPasswordToken: null,
+      resetPasswordTokenExpiry: null
+    }
+  });
+
+  await emailService.sendPasswordChangedEmail(user.email);
+
+  res.status(200).json({ message: 'Password has been updated' });
 });
 
 export default router;
